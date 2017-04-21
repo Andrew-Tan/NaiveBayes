@@ -45,7 +45,7 @@ public class NaiveBayesExtraCredit {
 	private double p_h;
 
 	// Constants the could be tweaked to improve accuracy
-	private static final double Laplace_k = 0.2;
+	private static final double Laplace_k = 0.001;
 
 	public NaiveBayesExtraCredit() {
 		File[] training_spam_files = training_spam_dir.toFile().listFiles();
@@ -115,6 +115,11 @@ public class NaiveBayesExtraCredit {
 		double probability_spam = Math.log10(this.p_s);
 		double probability_ham = Math.log10(this.p_h);
 		for (String word : words) {
+			if (stopWords.contains(word)) {
+				// Skip normal stop words
+				continue;
+			}
+
 			if (this.spam.containsKey(word)) {
 				probability_spam += Math.log10(this.spam.get(word));
 			} else {
