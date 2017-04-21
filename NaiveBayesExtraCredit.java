@@ -1,12 +1,12 @@
-import java.io.*;
-import java.lang.reflect.Array;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
 
-public class NaiveBayes {
+public class NaiveBayesExtraCredit {
 
-	//	This function reads in a file and returns a 
+	//	This function reads in a file and returns a
 	//	set of all the tokens. It ignores the subject line
 	//
 	//	If the email had the following content:
@@ -14,7 +14,7 @@ public class NaiveBayes {
 	//	Subject: Get rid of your student loans
 	//	Hi there ,
 	//	If you work for us, we will give you money
-	//	to repay your student loans . You will be 
+	//	to repay your student loans . You will be
 	//	debt free !
 	//	FakePerson_22393
 	//
@@ -35,6 +35,8 @@ public class NaiveBayes {
 	private static final Path training_ham_dir = FileSystems.getDefault().getPath("data", "train", "ham");
 	private static final Path tests_dir = FileSystems.getDefault().getPath("data", "test");
 
+	private static final double Laplace_k = 0.5;
+
 	private HashMap<String, Double> ham;
 	private HashMap<String, Double> spam;
 	private double hamCount;
@@ -42,7 +44,7 @@ public class NaiveBayes {
 	private double p_s;
 	private double p_h;
 
-	public NaiveBayes() {
+	public NaiveBayesExtraCredit() {
 		File[] training_spam_files = training_spam_dir.toFile().listFiles();
 		File[] training_ham_files = training_ham_dir.toFile().listFiles();
 		if (training_spam_files == null)
@@ -80,7 +82,7 @@ public class NaiveBayes {
 		}
 
 		for (HashMap.Entry<String, Double> entry : map.entrySet()) {
-			map.put(entry.getKey(), (entry.getValue() + 1) / (denominator + 2));
+			map.put(entry.getKey(), (entry.getValue() + Laplace_k) / (denominator + 2.0 * Laplace_k));
 		}
 	}
 
@@ -102,13 +104,13 @@ public class NaiveBayes {
 			if (this.spam.containsKey(word)) {
 				probability_spam += Math.log10(this.spam.get(word));
 			} else {
-				probability_spam += Math.log10(1.0 / (this.spamCount + 2.0));
+				probability_spam += Math.log10(Laplace_k / (this.spamCount + 2.0 * Laplace_k));
 			}
 
 			if (this.ham.containsKey(word)) {
 				probability_ham += Math.log10(this.ham.get(word));
 			} else {
-				probability_ham += Math.log10(1.0 / (this.spamCount + 2.0));
+				probability_ham += Math.log10(Laplace_k / (this.spamCount + 2.0 * Laplace_k));
 			}
 		}
 
@@ -116,7 +118,7 @@ public class NaiveBayes {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		NaiveBayes nb = new NaiveBayes();
+		NaiveBayesExtraCredit nb = new NaiveBayesExtraCredit();
 		File[] test_files = tests_dir.toFile().listFiles();
 		if (test_files == null)
 			throw new IllegalArgumentException("Test files not exists: " + tests_dir.toAbsolutePath());
