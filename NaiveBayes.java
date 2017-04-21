@@ -128,7 +128,7 @@ public class NaiveBayes {
 					int i2 = Integer.parseInt(f2.getName().split("\\.")[0]);
 					return i1 - i2;
 				} catch(NumberFormatException e) {
-					throw new AssertionError(e);
+					return f1.getName().compareTo(f2.getName());
 				}
 			}
 		});

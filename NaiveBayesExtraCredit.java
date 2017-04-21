@@ -34,15 +34,18 @@ public class NaiveBayesExtraCredit {
 	private static final Path training_spam_dir = FileSystems.getDefault().getPath("data", "train", "spam");
 	private static final Path training_ham_dir = FileSystems.getDefault().getPath("data", "train", "ham");
 	private static final Path tests_dir = FileSystems.getDefault().getPath("data", "test");
-
-	private static final double Laplace_k = 0.5;
+	private static final Path stop_words_file = FileSystems.getDefault().getPath("", "stop_words.txt");
 
 	private HashMap<String, Double> ham;
 	private HashMap<String, Double> spam;
+	private HashSet<String> stopWords;
 	private double hamCount;
 	private double spamCount;
 	private double p_s;
 	private double p_h;
+
+	// Constants the could be tweaked to improve accuracy
+	private static final double Laplace_k = 0.2;
 
 	public NaiveBayesExtraCredit() {
 		File[] training_spam_files = training_spam_dir.toFile().listFiles();
@@ -51,6 +54,12 @@ public class NaiveBayesExtraCredit {
 			throw new IllegalArgumentException("Spam training files not exists: " + training_spam_dir.toAbsolutePath());
 		if (training_ham_files == null)
 			throw new IllegalArgumentException("Spam training files not exists: " + training_ham_dir.toAbsolutePath());
+
+		try {
+			this.stopWords = tokenSet(stop_words_file.toFile());
+		} catch (IOException e) {
+			throw new RuntimeException("Error Loading Stop Words List!");
+		}
 
 		this.spamCount = training_spam_files.length;
 		this.hamCount = training_ham_files.length;
@@ -70,6 +79,11 @@ public class NaiveBayesExtraCredit {
 			for (; i < fileList.length; i++) {
 				wordAppearance = tokenSet(fileList[i]);
 				for (String word : wordAppearance) {
+					if (stopWords.contains(word)) {
+						// Skip normal stop words
+						continue;
+					}
+
 					if (map.containsKey(word)) {
 						map.put(word, map.get(word) + 1);
 					} else {
@@ -130,7 +144,7 @@ public class NaiveBayesExtraCredit {
 					int i2 = Integer.parseInt(f2.getName().split("\\.")[0]);
 					return i1 - i2;
 				} catch(NumberFormatException e) {
-					throw new AssertionError(e);
+					return f1.getName().compareTo(f2.getName());
 				}
 			}
 		});
