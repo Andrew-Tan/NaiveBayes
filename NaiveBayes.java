@@ -71,7 +71,7 @@ public class NaiveBayes {
 					if (map.containsKey(word)) {
 						map.put(word, map.get(word) + 1);
 					} else {
-						map.put(word, 1.0);
+						map.put(word, 2.0);
 					}
 				}
 			}
@@ -108,7 +108,7 @@ public class NaiveBayes {
 			if (this.ham.containsKey(word)) {
 				probability_ham += Math.log10(this.ham.get(word));
 			} else {
-				probability_ham += Math.log10(1.0 / (this.spamCount + 2.0));
+				probability_ham += Math.log10(1.0 / (this.hamCount + 2.0));
 			}
 		}
 
