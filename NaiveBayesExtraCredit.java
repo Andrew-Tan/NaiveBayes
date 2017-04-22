@@ -87,7 +87,7 @@ public class NaiveBayesExtraCredit {
 					if (map.containsKey(word)) {
 						map.put(word, map.get(word) + 1);
 					} else {
-						map.put(word, 1.0);
+						map.put(word, 2.0);
 					}
 				}
 			}
@@ -129,7 +129,7 @@ public class NaiveBayesExtraCredit {
 			if (this.ham.containsKey(word)) {
 				probability_ham += Math.log10(this.ham.get(word));
 			} else {
-				probability_ham += Math.log10(Laplace_k / (this.spamCount + 2.0 * Laplace_k));
+				probability_ham += Math.log10(Laplace_k / (this.hamCount + 2.0 * Laplace_k));
 			}
 		}
 
