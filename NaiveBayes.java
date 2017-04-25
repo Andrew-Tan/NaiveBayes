@@ -69,18 +69,14 @@ public class NaiveBayes {
 				wordAppearance = tokenSet(fileList[i]);
 				for (String word : wordAppearance) {
 					if (map.containsKey(word)) {
-						map.put(word, map.get(word) + 1);
+						map.put(word, map.get(word) + 1.0);
 					} else {
-						map.put(word, 2.0);
+						map.put(word, 1.0);
 					}
 				}
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("IO Exception occurred when handling file: " + fileList[i].getAbsolutePath());
-		}
-
-		for (HashMap.Entry<String, Double> entry : map.entrySet()) {
-			map.put(entry.getKey(), (entry.getValue() + 1) / (denominator + 2));
 		}
 	}
 
@@ -98,18 +94,30 @@ public class NaiveBayes {
 
 		double probability_spam = Math.log10(this.p_s);
 		double probability_ham = Math.log10(this.p_h);
+		double spamCount;
+		double hamCount;
+		boolean containsInSpam;
+		boolean containsInHam;
 		for (String word : words) {
-			if (this.spam.containsKey(word)) {
-				probability_spam += Math.log10(this.spam.get(word));
-			} else {
-				probability_spam += Math.log10(1.0 / (this.spamCount + 2.0));
+			containsInSpam = this.spam.containsKey(word);
+			containsInHam = this.ham.containsKey(word);
+			if ((!containsInSpam) && (!containsInHam)) {
+				continue;
 			}
 
-			if (this.ham.containsKey(word)) {
-				probability_ham += Math.log10(this.ham.get(word));
+			if (containsInSpam) {
+				spamCount = this.spam.get(word);
 			} else {
-				probability_ham += Math.log10(1.0 / (this.hamCount + 2.0));
+				spamCount = 1.0;
 			}
+			probability_spam += Math.log10((spamCount + 1.0) / (this.spamCount + 2.0));
+
+			if (containsInHam) {
+				hamCount = this.ham.get(word);
+			} else {
+				hamCount = 1.0;
+			}
+			probability_ham += Math.log10((hamCount + 1.0) / (this.hamCount + 2.0));
 		}
 
 		return probability_spam > probability_ham;
